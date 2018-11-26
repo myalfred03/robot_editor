@@ -1,7 +1,7 @@
 #include <QApplication>
 #include <ros/ros.h>
-#include "robot_editor.h"
-#include <ui_main_window.h>
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
 
 int main(int argc, char** argv)
 {
@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 
 	QApplication app(argc, argv);
 
-	RobotEditor robot_editor;
+  MainWindow robot_editor;
 	robot_editor.show();
 
 	return app.exec();

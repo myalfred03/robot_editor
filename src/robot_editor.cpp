@@ -39,7 +39,7 @@ RobotEditor::~RobotEditor()
 
 		delete publisher_thread_;
 	}
-	
+
 	if(robot_tree_ != NULL)
 		delete robot_tree_;
 	if(robot_state_pub_ != NULL)
@@ -52,7 +52,7 @@ void RobotEditor::show()
 }
 
 void RobotEditor::openTrigger() {
-	file_name_ = QFileDialog::getOpenFileName(0, tr("Open URDF File"), ".", tr("XML Files (*.xml)"));
+	file_name_ = QFileDialog::getOpenFileName(0, tr("Open URDF File"), ".", tr("URDF Files (*.urdf)"));
 
 	// this will be true if the user cancels
 	if(file_name_.isEmpty())
