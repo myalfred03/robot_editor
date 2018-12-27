@@ -234,22 +234,27 @@ void CodeEditor::keyPressEvent(QKeyEvent *event){
     }
 }
 void CodeEditor::setUpCompleteList(){
-  completeList<< "MoveJ" << "MoveL" << "MoveC"
-              << "MoveAbsJ" << "z" << "MoveJ_1"
-              << "p" << "v" << "tool0"
-               << "MoveJ_2" << "MoveJ_3" << "MoveJ_4"
-           /*    << "private" << "protected" << "public"
-               << "short" << "signals" << "signed"
-              << "slots" << "static" << "struct"
-              << "template" << "typedef" << "typename"
-              << "union" << "unsigned" << "virtual"
-              << "void" << "volatile" << "bool"<<"using"<<"constexpr"
-              <<"sizeof"<<"if"<<"for"<<"foreach"<<"while"<<"do"<<"case"
+  completeList<< "robot name=\"\"" << "link name=\"\"" << "visual"
+              << "origin rpy=\"0 0 0\" xyz=\"0 0 0\""
+              << "geometry" << "cylinder length=\"0\" radius=\"0\" "
+              << "material name=\"\"" << "box size=\"0 0 0\""  << "collision"
+              << "joint name=\"\" type=\"\"" << "axis xyz=\"\"" << "limit effort=\"0\" lower=\"0\" upper=\"0\" velocity=\"0\""
+              << "parent link=\"\"" << "child link=\"\"" << "joint"
+              << "link" << "robot" << "color rgba=\"0 0 0 0\""
+              << "mesh filename=\"\"" << "typedef" << "typename"
+              << "safety_controller k_velocity=\"0\" k_position=\"0\" soft_lower_limit=\"0\" soft_upper_limit=\"0\""
+              << "dynamics damping=\"0\" friction=\"0\""
+              << "calibration" << "rising=\"\"" << "falling=\"\""
+              << "< >" <<"< />" <<"</ >"
+            /*          <<"sizeof"<<"if"<<"for"<<"foreach"<<"while"<<"do"<<"case"
               <<"break"<<"continue"<<"template"<<"delete"<<"new"
               <<"default"<<"try"<<"return"<<"throw"<<"catch"<<"goto"<<"else"
               <<"extren"<<"this"<<"switch"<<"#include <>"<<"#include \"\""<<"#define"<<"iostream"*/;
 }
-//得到当前光标位置的字符串
+
+
+
+
 QString CodeEditor::getWordOfCursor(){
   int pos=this->textCursor().position()-1;
   QVector<QChar> words;

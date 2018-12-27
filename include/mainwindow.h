@@ -13,6 +13,7 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QDebug>
+#include <QObject>
 #include <stdio.h>
 #include <boost/filesystem.hpp>
 #include <boost/thread/thread.hpp>
@@ -24,6 +25,10 @@
 #include <std_msgs/Float32MultiArray.h>
 #include <boost/bind.hpp>
 
+#include <kdl/chain.hpp>
+#include <kdl/tree.hpp>
+#include <urdf/model.h>
+
 class QMainWindow;
 
 namespace Ui {
@@ -33,7 +38,7 @@ namespace Ui {
 class RobotPreview;
 
 namespace robot_state_publisher { class RobotStatePublisher; }
-namespace KDL { class Tree; }
+namespace KDL { class Tree; class Chain; }
 namespace boost { class thread; }
 class MainWindow : public QMainWindow
 {
@@ -49,6 +54,8 @@ public:
   ros::NodeHandle nh_;
 //  std_msgs::Float32MultiArray limit ;
 //  void publishJointStates();
+  void updateURDF(const std::string& urdf);
+  void updateWidgets(KDL::Tree& tree_, urdf::Model& model);
 
 private:
   QIcon runIcon;
@@ -60,12 +67,14 @@ private:
   RobotPreview* robot_preview_;
 
   boost::mutex state_pub_mutex_;
-    KDL::Tree* robot_tree_ = NULL;
+    KDL::Tree robot_tree_;
+    KDL::Chain kdl_chain;
+    urdf::Model urdf_model;
+    unsigned int njnt;
     robot_state_publisher::RobotStatePublisher* robot_state_pub_ = NULL;
     boost::thread* publisher_thread_;
     std::map<std::string, double> joint_positions_;
 
-  void updateURDF(const std::string& urdf);
   void publishJointStates();
 
 //  QProcess process;
@@ -102,16 +111,20 @@ private:
   //---------Read Data to File for move robot-------
 //  std::ifstream file("~/Documents/Untitled.rrun");
   //------------------------------------------------
+public Q_SLOTS:
+  void updateDialer();
+
+
 public slots:
   void changeSaveState(){
     //qDebug()<<"changed";
     if(firstLoad&&fileSaved){
-        this->setWindowTitle(tr("Robot Editor Script - ")+fileName);
+        this->setWindowTitle(tr("Robot Editor URDF - ")+fileName);
         firstLoad=false;
         return;
       }
     fileSaved=false;
-    this->setWindowTitle(tr("Robot Editor Script - ")+fileName+tr("*"));
+    this->setWindowTitle(tr("Robot Editor URDF - ")+fileName+tr("*"));
   }
   void newFile();
   void saveFile();
@@ -119,6 +132,7 @@ public slots:
   void undo();
   void redo();
   void run();
+
   //------------------------------
   void runFinished(int code);
   void updateOutput(std::string &info);

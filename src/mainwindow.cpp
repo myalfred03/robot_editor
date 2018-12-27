@@ -18,6 +18,9 @@
 #include <kdl_parser/kdl_parser.hpp>
 #include <robot_state_publisher/robot_state_publisher.h>
 
+double ToG    = 57.295779513;
+
+
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow)
@@ -34,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   setUpHighlighter();
   //init status bar
-  ui->outputText->parentWindow=this;
+//  ui->outputText->parentWindow=this;
   ui->statusBar->showMessage(tr("Ready"));
   //--------init toolbar------------
   //ui->statusBar->setStyleSheet("QStatusBar{background:rgb(50,50,50);}");
@@ -42,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->mainToolBar->setStyleSheet("QToolButton:hover {background-color:darkgray} QToolBar {background: rgb(179, 204, 204);border: none;}");
   //--------------------------------
 
-  runIcon.addPixmap(QPixmap(":/img/run.png"));
+  runIcon.addPixmap(QPixmap(":/img/robot.png"));
   stopIcon.addPixmap(QPixmap(":/img/stop.png"));
 //  errorIcon.addPixmap(QPixmap(":/img/error.png"));
 //  RerrorIcon.addPixmap(QPixmap(":/img/error_red.png"));
@@ -66,6 +69,15 @@ MainWindow::MainWindow(QWidget *parent) :
 //  connect(&process,SIGNAL(readyReadStandardError()),this,SLOT(updateError()));
   connect(ui->actionAbout,SIGNAL(triggered(bool)),this,SLOT(about()));
   fileSaved=true;
+
+  connect(ui->slider1, SIGNAL(valueChanged(int)), SLOT(updateDialer()));
+  connect(ui->slider2, SIGNAL(valueChanged(int)), this, SLOT(updateDialer()));
+  connect(ui->slider3, SIGNAL(valueChanged(int)), this, SLOT(updateDialer()));
+  connect(ui->slider4, SIGNAL(valueChanged(int)), this, SLOT(updateDialer()));
+  connect(ui->slider5, SIGNAL(valueChanged(int)), this, SLOT(updateDialer()));
+  connect(ui->slider6, SIGNAL(valueChanged(int)), this, SLOT(updateDialer()));
+
+
 
   publisher_thread_ = new boost::thread(boost::bind(&MainWindow::publishJointStates, this));
 
@@ -105,7 +117,7 @@ void MainWindow::setUpHighlighter(){
 void MainWindow::resizeEvent(QResizeEvent *event){
   QMainWindow::resizeEvent(event);
   ui->editor->setGeometry(10,0,width()-20,height()-ui->statusBar->height()-ui->mainToolBar->height()-80-15);
-  ui->outputText->setGeometry(10,ui->editor->height()+10,this->width()-20,80);
+//  ui->outputText->setGeometry(10,ui->editor->height()+10,this->width()-20,80);
 }
 void MainWindow::initFileData(){
   fileName=tr("Untitled.urdf");
@@ -131,7 +143,7 @@ void MainWindow::saveFile(){
       QRegularExpression re(tr("(?<=\\/)\\w+\\.urdf"));
       fileName=re.match(savePath).captured();
       filePath=savePath;
-      this->setWindowTitle(tr("Robot Script Editor - ")+fileName);
+      this->setWindowTitle(tr("Robot Editor URDF - ")+fileName);
     }
 //  ui->actionError_Datos->setIcon(errorIcon);
 
@@ -156,7 +168,7 @@ void MainWindow::openFile(){
       ui->editor->setPlainText(str.readAll());
       QRegularExpression re(tr("(?<=\\/)\\w+\\.urdf"));
       fileName=re.match(openPath).captured();
-      this->setWindowTitle(tr("Robot Script Editor - ")+fileName);
+      this->setWindowTitle(tr("Robot Editor URDF - ")+fileName);
       filePath=openPath;
       fileSaved=true;
       std::ifstream selected_file(filePath.toStdString()); // "/home/yesser/ros_qtc_plugin/src/interpreter_gui/Script/firstScript.rrun"
@@ -177,14 +189,22 @@ void MainWindow::run(){
       return;
     }
   if(!fileSaved){
-      if(QMessageBox::Save==QMessageBox::question(this,tr("Archivo no guardado"),tr("Guardar Archivo Actual？"),QMessageBox::Save,QMessageBox::Cancel))
-        saveFile();
+//      if(QMessageBox::Save==QMessageBox::question(this,tr("Archivo no guardado"),tr("Guardar Archivo Actual？"),QMessageBox::Save,QMessageBox::Cancel))
+//        saveFile();
+    QFile out(filePath);
+    out.open(QIODevice::WriteOnly|QIODevice::Text);
+    QTextStream str(&out);
+    str<<ui->editor->toPlainText();
+    out.close();
+    fileSaved=true;
+
+
     }
   if(fileSaved){
     //if(process!=nullptr)delete process;
     isRunning=true;
     ui->statusBar->showMessage(tr("Programa En Ejecucion..."));
-    ui->outputText->clear();
+//    ui->outputText->clear();
     output.clear();
     error.clear();
     QString buildPath;
@@ -194,7 +214,7 @@ void MainWindow::run(){
 //    process.start("bash", QStringList() << "-c" << QString(tr("g++ ")+filePath+tr(" -o ")+buildPath+tr(";")+buildPath));
 //    process.waitForStarted();
 
-    ui->outputText->setFocus();
+//    ui->outputText->setFocus();
     ui->actionRun->setIcon(stopIcon);
 
 
@@ -218,24 +238,38 @@ void MainWindow::updateURDF(const std::string& urdf)
   nh_.setParam("robot_editor/robot_description", robot_description);
 
   boost::mutex::scoped_lock state_pub_lock(state_pub_mutex_);
-  if(robot_tree_ != NULL)
-    delete robot_tree_;
+//  if(robot_tree_ != NULL)
+//    delete robot_tree_;
   if(robot_state_pub_ != NULL)
     delete robot_state_pub_;
 
-  robot_tree_ = new KDL::Tree();
-  if(!kdl_parser::treeFromString(urdf, *robot_tree_))
+//  robot_tree_ = new KDL::Tree();
+
+  if (!urdf_model.initString(urdf))    //Si se abre desde una direccion de ruta de archivo (//home/user//..//name.urdf) .initFile
   {
-    ROS_ERROR("Failed to construct KDL tree");
-    return;
+      ROS_ERROR("Failed to parse urdf file in model param");
+//      nh.shutdown();
+      //return false;
   }
 
+  if (!kdl_parser::treeFromUrdfModel(urdf_model, robot_tree_)){
+         ROS_ERROR("Failed to construct kdl tree");
+//         nh.shutdown();
+      }
+
+//  if(!kdl_parser::treeFromString(urdf, *robot_tree_))
+//  {
+//    ROS_ERROR("Failed to construct KDL tree");
+//    return;
+//  }
+
+  this->updateWidgets(robot_tree_, urdf_model);
   // create a robot state publisher from the tree
-    robot_state_pub_ = new robot_state_publisher::RobotStatePublisher(*robot_tree_);
+    robot_state_pub_ = new robot_state_publisher::RobotStatePublisher(robot_tree_);
 
   // now create a map with joint name and positions
   joint_positions_.clear();
-  const std::map<std::string, KDL::TreeElement>& segments = robot_tree_->getSegments();
+  const std::map<std::string, KDL::TreeElement>& segments = robot_tree_.getSegments();
   for(std::map<std::string, KDL::TreeElement>::const_iterator it=segments.begin();
     it != segments.end(); it++)
   {
@@ -243,9 +277,246 @@ void MainWindow::updateURDF(const std::string& urdf)
   }
 
   // refresh the preview
-  robot_preview_->refresh("robot_editor/" + robot_tree_->getRootSegment()->first);
+  robot_preview_->refresh("robot_editor/" + robot_tree_.getRootSegment()->first);
+
 
 }
+void MainWindow::updateWidgets(KDL::Tree& tree_, urdf::Model& model){
+
+ njnt=0;
+  if(!tree_.getChain("base_link", "tool0", kdl_chain))
+      {
+          ROS_ERROR("Error getting KDL chain");
+//           nh.shutdown();
+      }
+  njnt = kdl_chain.getNrOfJoints();
+  std::vector<double>joint_lower;
+  std::vector<double>joint_upper;
+  joint_lower.clear();
+  joint_upper.clear();
+
+  std::vector<std::string> seg_names;
+
+  for(int i=0; i<njnt; i++)
+      seg_names.push_back(kdl_chain.getSegment(i).getJoint().getName());
+
+  for (std::map<std::string,boost::shared_ptr<urdf::Joint> >::iterator joint = model.joints_.begin(); joint != model.joints_.end(); ++joint) {
+      if ( joint->second->limits && std::find(seg_names.begin(), seg_names.end(),joint->second->name)!=seg_names.end() ) {
+          if (joint->second->limits->lower != joint->second->limits->upper) {
+             // limited_jnt_names.push_back(joint->second->name);
+              joint_lower.push_back(joint->second->limits->lower);
+              joint_upper.push_back(joint->second->limits->upper);
+    }
+   }
+  }
+
+  ui->spinBox->setMinimum(joint_lower[0]*ToG);
+  ui->spinBox->setMaximum(joint_upper[0]*ToG);
+  ui->spinBox->setSingleStep(1);
+
+  ui->spinBox_2->setMinimum(joint_lower[1]*ToG);
+  ui->spinBox_2->setMaximum(joint_upper[1]*ToG);
+  ui->spinBox_2->setSingleStep(1);
+
+  ui->spinBox_3->setMinimum(joint_lower[2]*ToG);
+  ui->spinBox_3->setMaximum(joint_upper[2]*ToG);
+  ui->spinBox_3->setSingleStep(1);
+
+  ui->spinBox_4->setMinimum(joint_lower[3]*ToG);
+  ui->spinBox_4->setMaximum(joint_upper[3]*ToG);
+  ui->spinBox_4->setSingleStep(1);
+
+  ui->spinBox_5->setMinimum(joint_lower[4]*ToG);
+  ui->spinBox_5->setMaximum(joint_upper[4]*ToG);
+  ui->spinBox_5->setSingleStep(1);
+
+  ui->spinBox_6->setMinimum(joint_lower[5]*ToG);
+  ui->spinBox_6->setMaximum(joint_upper[5]*ToG);
+  ui->spinBox_6->setSingleStep(1);
+
+
+
+  ui->slider1->setMinimum(joint_lower[0]*ToG);
+  ui->slider1->setMaximum(joint_upper[0]*ToG);
+  ui->slider1->setSingleStep(1);
+
+  ui->slider2->setMinimum(joint_lower[1]*ToG);
+  ui->slider2->setMaximum(joint_upper[1]*ToG);
+  ui->slider2->setSingleStep(1);
+
+  ui->slider3->setMinimum(joint_lower[2]*ToG);
+  ui->slider3->setMaximum(joint_upper[2]*ToG);
+  ui->slider3->setSingleStep(1);
+
+  ui->slider4->setMinimum(joint_lower[3]*ToG);
+  ui->slider4->setMaximum(joint_upper[3]*ToG);
+  ui->slider4->setSingleStep(1);
+
+  ui->slider5->setMinimum(joint_lower[4]*ToG);
+  ui->slider5->setMaximum(joint_upper[4]*ToG);
+  ui->slider5->setSingleStep(1);
+
+  ui->slider6->setMinimum(joint_lower[5]*ToG);
+  ui->slider6->setMaximum(joint_upper[5]*ToG);
+  ui->slider6->setSingleStep(1);
+
+  switch (njnt) {
+
+    case 0:
+    {
+    ui->slider1->setEnabled(false);
+    ui->slider2->setEnabled(false);
+    ui->slider3->setEnabled(false);
+    ui->slider4->setEnabled(false);
+    ui->slider5->setEnabled(false);
+    ui->slider6->setEnabled(false);
+
+    ui->spinBox->setEnabled(false);
+    ui->spinBox_2->setEnabled(false);
+    ui->spinBox_3->setEnabled(false);
+    ui->spinBox_4->setEnabled(false);
+    ui->spinBox_5->setEnabled(false);
+    ui->spinBox_6->setEnabled(false);
+
+
+    ui->spinBox->setValue(0);
+    ui->spinBox_2->setValue(0);
+    ui->spinBox_3->setValue(0);
+    ui->spinBox_4->setValue(0);
+    ui->spinBox_5->setValue(0);
+    ui->spinBox_6->setValue(0);
+
+    ui->slider1->setValue(0);
+    ui->slider2->setValue(0);
+    ui->slider3->setValue(0);
+    ui->slider4->setValue(0);
+    ui->slider5->setValue(0);
+    ui->slider6->setValue(0);
+
+   break;
+
+
+    }
+
+  case 1:
+  {
+  ui->slider1->setEnabled(true);
+  ui->slider2->setEnabled(false);
+  ui->slider3->setEnabled(false);
+  ui->slider4->setEnabled(false);
+  ui->slider5->setEnabled(false);
+  ui->slider6->setEnabled(false);
+
+  ui->spinBox->setEnabled(true);
+  ui->spinBox_2->setEnabled(false);
+  ui->spinBox_3->setEnabled(false);
+  ui->spinBox_4->setEnabled(false);
+  ui->spinBox_5->setEnabled(false);
+  ui->spinBox_6->setEnabled(false);
+  break;
+
+  }
+  case 2:
+  {
+  ui->slider1->setEnabled(true);
+  ui->slider2->setEnabled(true);
+  ui->slider3->setEnabled(false);
+  ui->slider4->setEnabled(false);
+  ui->slider5->setEnabled(false);
+  ui->slider6->setEnabled(false);
+
+  ui->spinBox->setEnabled(true);
+  ui->spinBox_2->setEnabled(true);
+  ui->spinBox_3->setEnabled(false);
+  ui->spinBox_4->setEnabled(false);
+  ui->spinBox_5->setEnabled(false);
+  ui->spinBox_6->setEnabled(false);
+  break;
+
+  }
+
+  case 3:
+  {
+  ui->slider1->setEnabled(true);
+  ui->slider2->setEnabled(true);
+  ui->slider3->setEnabled(true);
+  ui->slider4->setEnabled(false);
+  ui->slider5->setEnabled(false);
+  ui->slider6->setEnabled(false);
+
+  ui->spinBox->setEnabled(true);
+  ui->spinBox_2->setEnabled(true);
+  ui->spinBox_3->setEnabled(true);
+  ui->spinBox_4->setEnabled(false);
+  ui->spinBox_5->setEnabled(false);
+  ui->spinBox_6->setEnabled(false);
+  break;
+
+  }
+
+  case 4:
+  {
+  ui->slider1->setEnabled(true);
+  ui->slider2->setEnabled(true);
+  ui->slider3->setEnabled(true);
+  ui->slider4->setEnabled(true);
+  ui->slider5->setEnabled(false);
+  ui->slider6->setEnabled(false);
+
+  ui->spinBox->setEnabled(true);
+  ui->spinBox_2->setEnabled(true);
+  ui->spinBox_3->setEnabled(true);
+  ui->spinBox_4->setEnabled(true);
+  ui->spinBox_5->setEnabled(false);
+  ui->spinBox_6->setEnabled(false);
+  break;
+
+  }
+
+  case 5:
+  {
+  ui->slider1->setEnabled(true);
+  ui->slider2->setEnabled(true);
+  ui->slider3->setEnabled(true);
+  ui->slider4->setEnabled(true);
+  ui->slider5->setEnabled(true);
+  ui->slider6->setEnabled(false);
+
+  ui->spinBox->setEnabled(true);
+  ui->spinBox_2->setEnabled(true);
+  ui->spinBox_3->setEnabled(true);
+  ui->spinBox_4->setEnabled(true);
+  ui->spinBox_5->setEnabled(true);
+  ui->spinBox_6->setEnabled(false);
+  break;
+
+  }
+
+  case 6:
+  {
+  ui->slider1->setEnabled(true);
+  ui->slider2->setEnabled(true);
+  ui->slider3->setEnabled(true);
+  ui->slider4->setEnabled(true);
+  ui->slider5->setEnabled(true);
+  ui->slider6->setEnabled(true);
+
+  ui->spinBox->setEnabled(true);
+  ui->spinBox_2->setEnabled(true);
+  ui->spinBox_3->setEnabled(true);
+  ui->spinBox_4->setEnabled(true);
+  ui->spinBox_5->setEnabled(true);
+  ui->spinBox_6->setEnabled(true);
+  break;
+
+  }
+
+  } //end switch
+
+
+}
+
+
 
 void MainWindow::publishJointStates()
 {
@@ -275,8 +546,17 @@ void MainWindow::publishJointStates()
 
 }
 
+void MainWindow::updateDialer()
+{
 
+    joint_positions_["joint_1"]= ui->slider1->value()/ToG;
+    joint_positions_["joint_2"]= ui->slider2->value()/ToG;
+    joint_positions_["joint_3"]= ui->slider3->value()/ToG;
+    joint_positions_["joint_4"]= ui->slider4->value()/ToG;
+    joint_positions_["joint_5"]= ui->slider5->value()/ToG;
+    joint_positions_["joint_6"]= ui->slider6->value()/ToG;
 
+}
 
 
 //void MainWindow::jointsizeCallback(const std_msgs::Float32MultiArray::ConstPtr &msglimit) //Valores de los limtes de los joints
@@ -437,12 +717,12 @@ void MainWindow::updateOutput(std::string &info)
 {
   output=QString::fromLocal8Bit(info.c_str());
   //ui->outputText->setPlainText(output+tr("\n")+error);
-  ui->outputText->setPlainText(ui->outputText->toPlainText()+tr("Ejecutando Movimiento ")+output+tr("... \n"));//+tr("\n"));
+//  ui->outputText->setPlainText(ui->outputText->toPlainText()+tr("Ejecutando Movimiento ")+output+tr("... \n"));//+tr("\n"));
 }
 void MainWindow::updateError(){
   error=QString("Valores Fuera del espacio de trabajo");
 //  //ui->outputText->setPlainText(output+tr("\n")+error);
-  ui->outputText->setPlainText(ui->outputText->toPlainText()+error);//+tr("\n"));
+//  ui->outputText->setPlainText(ui->outputText->toPlainText()+error);//+tr("\n"));
 //  ui->actionError_Datos->isEnabled();
 //  ui->actionError_Datos->setIcon(RerrorIcon);
   isRunning=false;

@@ -31,5 +31,6 @@
         <file>img/information.png</file>
         <file>img/error.png</file>
         <file>img/error_red.png</file>
+        <file>img/robot.png</file>
     </qresource>
 </RCC>

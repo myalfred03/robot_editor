@@ -6,18 +6,18 @@ Highlighter::Highlighter(QTextDocument *parent)
 {
     HighlightingRule rule;
 
-    keywordFormat.setForeground(QColor(51, 204, 51));
+    keywordFormat.setForeground(QColor(255, 51, 153));//QColor(51, 204, 51));
     keywordFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
-    keywordPatterns << "\\bMoveL\\b" << "\\bMoveJ\\b" << "\\bMoveC\\b"
-                    << "\\bMoveAbsJ\\b" << "\\bz\\b" << "\\bint\\b"
-                    << "\\bp \\b" << "\\bv \\b" << "\\bMoveJ_4\\b"
-                    << "\\bMoveJ_1\\b" << "\\bMoveJ_2\\b" << "\\bMoveJ_3\\b"
-             /*          << "\\blong\\b" << "\\bnamespace\\b" << "\\boperator\\b"
-                    << "\\bprivate\\b" << "\\bprotected\\b" << "\\bpublic\\b"
-                    << "\\bshort\\b" << "\\bsignals\\b" << "\\bsigned\\b"
-                    << "\\bslots\\b" << "\\bstatic\\b" << "\\bstruct\\b"
-                    << "\\btemplate\\b" << "\\btypedef\\b" << "\\btypename\\b"
+    keywordPatterns << "\\brobot\\b" << "\\blink \\b" << "\\bvisual\\b"
+                    << "\\borigin\\b" << "\\bgeometry\\b" << "\\bbox\\b"
+                    << "\\bcylinder\\b" << "\\bmass\\b" << "\\binertia\\b"
+                    << "\\bmaterial\\b" << "\\bcollision\\b" << "\\binertial\\b"
+                    << "\\bjoint\\b" << "\\baxis\\b" << "\\blimit\\b"
+                    << "\\borigin\\b" << "\\bparent\\b" << "\\bchild\\b"
+                    << "\\blink\\b" << "\\bxml\\b" << "\\bcylinder\\b"
+                    << "\\bsafety_controller\\b"   << "\\bdynamics\\b"  << "\\bcalibration\\b"
+                     << "\\bcolor\\b"       /*     << "\\btypedef\\b" << "\\btypename\\b"
                     << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
                     << "\\bvoid\\b" << "\\bvolatile\\b" << "\\bbool\\b"<<"\\busing\\b"<<"\\bconstexpr\\b"
                     <<"\\bsizeof\\b"<<"\\bif\\b"<<"\\bfor\\b"<<"\\bforeach\\b"<<"\\bwhile\\b"<<"\\bdo\\b"<<"\\bcase\\b"
@@ -28,8 +28,50 @@ Highlighter::Highlighter(QTextDocument *parent)
         rule.pattern = QRegularExpression(pattern);
         rule.format = keywordFormat;
         highlightingRules.append(rule);
+
+
+
+
 //! [0] //! [1]
     }
+
+    HighlightingRule rule2;
+
+    keywordFormat2.setForeground(QColor(92, 214, 92));
+    keywordFormat2.setFontWeight(QFont::Bold);
+    QStringList keywordPatterns2;
+    keywordPatterns2 << "\\bname\\b" << "\\brgba\\b" << "\\brpy\\b"
+                    << "\\bsize\\b" << "\\bxyz\\b" << "\\brgba\\b"
+                    << "\\beffort\\b" << "\\blower\\b" << "\\bupper\\b"
+                    << "\\bvelocity\\b" << "\\btype\\b" << "\\b link\\b"
+                    << "\\bversion\\b" << "\\blength\\b" << "\\bradius\\b"
+                    << "\\bixx\\b" << "\\bixy\\b" << "\\bixz\\b"
+                    << "\\biyy\\b" << "\\biyz\\b" << "\\bizz\\b"
+                    << "\\bk_velocity\\b" << "\\bk_position\\b" << "\\bsoft_lower_limit\\b"
+                    << "\\bsoft_upper_limit\\b" << "\\bdamping\\b" << "\\bfriction\\b"
+                    << "\\brising\\b" << "\\bfalling\\b" << "\\bvalue\\b"
+                 /*    << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
+                    << "\\bvoid\\b" << "\\bvolatile\\b" << "\\bbool\\b"<<"\\busing\\b"<<"\\bconstexpr\\b"
+                    <<"\\bsizeof\\b"<<"\\bif\\b"<<"\\bfor\\b"<<"\\bforeach\\b"<<"\\bwhile\\b"<<"\\bdo\\b"<<"\\bcase\\b"
+                    <<"\\bbreak\\b"<<"\\bcontinue\\b"<<"\\btemplate\\b"<<"\\bdelete\\b"<<"\\bnew\\b"
+                    <<"\\bdefault\\b"<<"\\btry\\b"<<"\\breturn\\b"<<"\\bthrow\\b"<<"\\bcatch\\b"<<"\\bgoto\\b"<<"\\belse\\b"
+                    <<"\\bextren\\b"<<"\\bthis\\b"<<"\\bswitch\\b"<<"\\binclude\\b"<<"\\bdefine\\b"*/;
+    foreach (const QString &pattern2, keywordPatterns2) {
+        rule2.pattern = QRegularExpression(pattern2);
+        rule2.format = keywordFormat2;
+        highlightingRules.append(rule2);
+
+
+
+
+//! [0] //! [1]
+    }
+
+
+
+
+
+
 //! [1]
 
 //! [2]
@@ -52,18 +94,18 @@ Highlighter::Highlighter(QTextDocument *parent)
 //! [3]
 
 //! [4]
-    //头文件包含规则
-    quotationFormat.setForeground(Qt::darkGreen);
-    rule.pattern = QRegularExpression("(?<=#include\\s)(<.*>)|(?<=#include)(<.*>)|(?<=#include\\s)(\".*\")|(?<=#include)(\".*\")|\".*\"");
+    //头文件包含规则                                                     |\".*\"
+    quotationFormat.setForeground(Qt::darkYellow);
+    rule.pattern = QRegularExpression("(?<=#include\\s)(<.*>)|(?<=#include)(<.*>)|(?<=#include\\s)(\".*\")|(?<=#include)(\".*\")");
     rule.format = quotationFormat;
     highlightingRules.append(rule);
 //! [4]
 
 //! [5]
-    //函数 规则
-    functionFormat.setFontItalic(true);
-    functionFormat.setForeground(QColor(115,182,209));
-    rule.pattern = QRegularExpression("\\b[A-Za-z0-9_]+(?=\\()");
+    //函数 规则                                                         ("abc(\\d+)def");  \"\\d+ \\d+ \\d+\"|\"\\d.\\d+ \\d.\\d+ \\d.\\d+\"
+//    functionFormat.setFontItalic(true);
+    functionFormat.setForeground(QColor(255, 255, 102));
+    rule.pattern = QRegularExpression("\"(.+?)\"");
     rule.format = functionFormat;
     highlightingRules.append(rule);
 //! [5]

@@ -29,6 +29,13 @@ RobotPreview::RobotPreview(QWidget* parent) :
 
 	// Create a grid display
 	grid_ = manager_->createDisplay("rviz/Grid", "Robot Preview", true);
+  tF_   = manager_->createDisplay( "rviz/TF","TF", true); // active mode or disable at load model robot
+  tF_->subProp( "Show Names" )->setValue(false);
+  tF_->subProp( "Show Axes" )->setValue(true);
+  tF_->subProp( "Show Arrows" )->setValue(false);
+  tF_->subProp( "Marker Scale" )->setValue(1);
+  tF_->subProp( "Frame Timeout" )->setValue(1);
+
 	ROS_ASSERT(grid_ != NULL);
 
 	// create a robot model display
@@ -38,6 +45,8 @@ RobotPreview::RobotPreview(QWidget* parent) :
 RobotPreview::~RobotPreview()
 {
 	delete manager_;
+  delete tF_;
+
 }
 
 void RobotPreview::refresh(const std::string& fixed_frame)
