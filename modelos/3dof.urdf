@@ -17,6 +17,7 @@
       </geometry>
     </visual>
   </link>
+  
   <link name="link_3">
     <visual>
       <origin xyz="0 0 0.25" rpy="0 0 0"/>
