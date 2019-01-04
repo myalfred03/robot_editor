@@ -17,8 +17,8 @@ Highlighter::Highlighter(QTextDocument *parent)
                     << "\\borigin\\b" << "\\bparent\\b" << "\\bchild\\b"
                     << "\\blink\\b" << "\\bxml\\b" << "\\bcylinder\\b"
                     << "\\bsafety_controller\\b"   << "\\bdynamics\\b"  << "\\bcalibration\\b"
-                     << "\\bcolor\\b"       /*     << "\\btypedef\\b" << "\\btypename\\b"
-                    << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
+                    << "\\bcolor\\b"  << "\\bmesh\\b"
+                 /*     << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
                     << "\\bvoid\\b" << "\\bvolatile\\b" << "\\bbool\\b"<<"\\busing\\b"<<"\\bconstexpr\\b"
                     <<"\\bsizeof\\b"<<"\\bif\\b"<<"\\bfor\\b"<<"\\bforeach\\b"<<"\\bwhile\\b"<<"\\bdo\\b"<<"\\bcase\\b"
                     <<"\\bbreak\\b"<<"\\bcontinue\\b"<<"\\btemplate\\b"<<"\\bdelete\\b"<<"\\bnew\\b"
@@ -28,11 +28,6 @@ Highlighter::Highlighter(QTextDocument *parent)
         rule.pattern = QRegularExpression(pattern);
         rule.format = keywordFormat;
         highlightingRules.append(rule);
-
-
-
-
-//! [0] //! [1]
     }
 
     HighlightingRule rule2;
@@ -50,7 +45,7 @@ Highlighter::Highlighter(QTextDocument *parent)
                     << "\\bk_velocity\\b" << "\\bk_position\\b" << "\\bsoft_lower_limit\\b"
                     << "\\bsoft_upper_limit\\b" << "\\bdamping\\b" << "\\bfriction\\b"
                     << "\\brising\\b" << "\\bfalling\\b" << "\\bvalue\\b"
-                 /*    << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
+                    << "\\bfilename\\b"    /* << "\\bunsigned\\b" << "\\bvirtual\\b"
                     << "\\bvoid\\b" << "\\bvolatile\\b" << "\\bbool\\b"<<"\\busing\\b"<<"\\bconstexpr\\b"
                     <<"\\bsizeof\\b"<<"\\bif\\b"<<"\\bfor\\b"<<"\\bforeach\\b"<<"\\bwhile\\b"<<"\\bdo\\b"<<"\\bcase\\b"
                     <<"\\bbreak\\b"<<"\\bcontinue\\b"<<"\\btemplate\\b"<<"\\bdelete\\b"<<"\\bnew\\b"
@@ -60,11 +55,6 @@ Highlighter::Highlighter(QTextDocument *parent)
         rule2.pattern = QRegularExpression(pattern2);
         rule2.format = keywordFormat2;
         highlightingRules.append(rule2);
-
-
-
-
-//! [0] //! [1]
     }
 
 

@@ -248,14 +248,14 @@
     <link name="z_axis_link">
         <visual>
             <geometry>
-                <mesh filename="package://rvizglabre/modelos/cartesian_description/meshes/zAxis.STL" />
+                <mesh filename="package://rvizglabre/modelos/cartesian_description/meshes/zAxis.STL"/>
             </geometry>
-            <origin rpy="0 0 0" xyz="0 -0.038 0"/>
+            <origin rpy="0 0 0" xyz="0 -0.038 0" />
         </visual>
 
 <!--         <visual>
             <geometry>
-                <mesh filename="package://rvizglabre/modelos/cartesian_description/meshes/yaw.STL" />
+                <mesh filename="package://rvizglabre/modelos/cartesian_description/meshes/yaw.STL"/>
             </geometry>
             <origin rpy="0 0 -1.57" xyz="0 0 0.012"/>
         </visual> -->

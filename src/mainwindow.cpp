@@ -525,7 +525,7 @@ void MainWindow::publishJointStates()
   while(true)
   {
     { // lock the state publisher objects and run
-      boost::mutex::scoped_lock state_pub_lock(state_pub_mutex_);
+      //boost::mutex::scoped_lock state_pub_lock(state_pub_mutex_);
       if(robot_state_pub_ != NULL)
       {
          robot_state_pub_->publishTransforms(joint_positions_, ros::Time::now(), "robot_editor");
@@ -534,11 +534,11 @@ void MainWindow::publishJointStates()
          ROS_INFO("Published joint state info");
       }
     }
-    try {
-      boost::this_thread::interruption_point();
-    } catch(const boost::thread_interrupted& o) {
-      break; // quit the thread's loop
-    }
+//    try {
+//      boost::this_thread::interruption_point();
+//    } catch(const boost::thread_interrupted& o) {
+//      break; // quit the thread's loop
+//    }
 
 
     loop_rate.sleep();
