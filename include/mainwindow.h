@@ -67,11 +67,15 @@ private:
   RobotPreview* robot_preview_;
 
   boost::mutex state_pub_mutex_;
-    KDL::Tree robot_tree_;
+
+    //KDL::Tree *robot_tree_;
+    boost::shared_ptr<KDL::Tree>  robot_tree_ = NULL;
+    boost::shared_ptr<robot_state_publisher::RobotStatePublisher> robot_state_pub_ = NULL;
+
     KDL::Chain kdl_chain;
     urdf::Model urdf_model;
     unsigned int njnt;
-    robot_state_publisher::RobotStatePublisher* robot_state_pub_ = NULL;
+   // robot_state_publisher::RobotStatePublisher* robot_state_pub_ = NULL;
     boost::thread* publisher_thread_;
     std::map<std::string, double> joint_positions_;
 

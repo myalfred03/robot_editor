@@ -98,6 +98,11 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.pattern = QRegularExpression("\"(.+?)\"");
     rule.format = functionFormat;
     highlightingRules.append(rule);
+
+    comments.setForeground(QColor(255, 255, 255)); //<!--.+?-->   <!--.+--> <!--.*-->  <!--(.*?)-->
+    rule.pattern = QRegularExpression("<!--.*-->");
+    rule.format = comments;
+    highlightingRules.append(rule);
 //! [5]
 
 //! [6]

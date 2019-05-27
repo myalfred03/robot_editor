@@ -102,6 +102,11 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
   delete ui;
+
+  if(robot_tree_ != NULL)
+   robot_tree_.reset();
+if(robot_state_pub_ != NULL)
+   robot_state_pub_.reset();
 }
 void MainWindow::setUpHighlighter(){
   QFont font;
@@ -240,8 +245,8 @@ void MainWindow::updateURDF(const std::string& urdf)
   boost::mutex::scoped_lock state_pub_lock(state_pub_mutex_);
 //  if(robot_tree_ != NULL)
 //    delete robot_tree_;
-  if(robot_state_pub_ != NULL)
-    delete robot_state_pub_;
+  // if(robot_state_pub_ != NULL)
+  //   delete robot_state_pub_;
 
 //  robot_tree_ = new KDL::Tree();
 
@@ -251,8 +256,9 @@ void MainWindow::updateURDF(const std::string& urdf)
 //      nh.shutdown();
       //return false;
   }
+    robot_tree_.reset(new KDL::Tree());
 
-  if (!kdl_parser::treeFromUrdfModel(urdf_model, robot_tree_)){
+  if (!kdl_parser::treeFromUrdfModel(urdf_model, *robot_tree_)){
          ROS_ERROR("Failed to construct kdl tree");
 //         nh.shutdown();
       }
@@ -263,13 +269,14 @@ void MainWindow::updateURDF(const std::string& urdf)
 //    return;
 //  }
 
-  this->updateWidgets(robot_tree_, urdf_model);
+  this->updateWidgets(*robot_tree_, urdf_model);
   // create a robot state publisher from the tree
-    robot_state_pub_ = new robot_state_publisher::RobotStatePublisher(robot_tree_);
+    //robot_state_pub_ = new robot_state_publisher::RobotStatePublisher(*robot_tree_);
+  robot_state_pub_.reset( new robot_state_publisher::RobotStatePublisher(*robot_tree_));
 
   // now create a map with joint name and positions
   joint_positions_.clear();
-  const std::map<std::string, KDL::TreeElement>& segments = robot_tree_.getSegments();
+  const std::map<std::string, KDL::TreeElement>& segments = robot_tree_->getSegments();
   for(std::map<std::string, KDL::TreeElement>::const_iterator it=segments.begin();
     it != segments.end(); it++)
   {
@@ -277,7 +284,7 @@ void MainWindow::updateURDF(const std::string& urdf)
   }
 
   // refresh the preview
-  robot_preview_->refresh("robot_editor/" + robot_tree_.getRootSegment()->first);
+  robot_preview_->refresh("robot_editor/" + robot_tree_->getRootSegment()->first);
 
 
 }
